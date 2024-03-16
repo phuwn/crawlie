@@ -1,15 +1,19 @@
-#### What does this pr do ?
+#### What does this pr do?
 
-- [ ] feature/bugfix - ...
+- [ ] Feature/Bugfix
+  - 123
 
-#### Definition of done ?
+#### Definition of done?
 
 - [ ] Unit test
 - [ ] Integration test
 
-#### Evironment updates ?
+#### Evironment updates?
 
-- [ ] New dependencies ?
-- [ ] New migrations ?
+- [ ] New dependencies
+  - 456
+- [ ] New migrations
+  - 789
+- [ ] New environment variables
 
-#### Screenshots ?
+#### Screenshots?
