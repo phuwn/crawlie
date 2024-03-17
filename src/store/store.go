@@ -1,6 +1,8 @@
 package store
 
-import "github.com/phuwn/crawlie/src/store/user"
+import (
+	"github.com/phuwn/crawlie/src/store/user"
+)
 
 // Store - server store struct
 type Store struct {

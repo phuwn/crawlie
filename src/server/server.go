@@ -1,27 +1,60 @@
 package server
 
 import (
+	"github.com/phuwn/crawlie/src/auth"
+	"github.com/phuwn/crawlie/src/config"
+	"github.com/phuwn/crawlie/src/database"
 	"github.com/phuwn/crawlie/src/service"
 	"github.com/phuwn/crawlie/src/store"
 )
 
-var srv Server
+var srv *Server
 
 // Server - server structure
 type Server struct {
-	store   *store.Store
-	service *service.Service
+	auth     *auth.Authenticator
+	database database.Database
+	store    *store.Store
+	service  *service.Service
 }
 
-// NewServerCfg - create new server
-func NewServerCfg(store *store.Store, service *service.Service) {
-	srv.store = store
-	srv.service = service
+// Init - create new server
+func Init(cfg *config.Config) error {
+	var (
+		db  database.Database
+		err error
+	)
+
+	switch cfg.Type {
+	case "postgres":
+		db, err = database.NewPostgresConn(cfg.Database)
+	}
+	if err != nil {
+		return err
+	}
+
+	srv = &Server{
+		auth:     auth.NewAuthenticator(cfg.Authenticator),
+		database: db,
+		store:    store.New(),
+		service:  service.New(cfg.Service),
+	}
+	return nil
 }
 
-// GetServerCfg - get server configuration settings
-func GetServerCfg() *Server {
-	return &srv
+// GetServer - get server configuration settings
+func Get() *Server {
+	return srv
+}
+
+// Auth - get Authenticator
+func (s *Server) Auth() *auth.Authenticator {
+	return s.auth
+}
+
+// Database - get Database
+func (s *Server) DB() database.Database {
+	return s.database
 }
 
 // Store - get store

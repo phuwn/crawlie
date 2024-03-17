@@ -1,40 +1,26 @@
 package user
 
 import (
-	"errors"
+	"time"
 
-	"github.com/jinzhu/copier"
 	"github.com/labstack/echo"
-	"github.com/phuwn/crawlie/src/db"
+	"github.com/phuwn/crawlie/src/auth"
 	"github.com/phuwn/crawlie/src/model"
+	"github.com/phuwn/crawlie/src/request"
+	"github.com/phuwn/crawlie/src/response"
 	"github.com/phuwn/crawlie/src/server"
 	"github.com/phuwn/crawlie/src/util"
-	"gorm.io/gorm"
 )
 
-func Save(c echo.Context, u *model.User) error {
-	cfg := server.GetServerCfg()
-	tx, err := db.GetTxFromCtx(c)
-	if err != nil {
-		return err
-	}
-
-	err = cfg.Store().User.Save(tx, u)
-	if err != nil {
-		return errors.New("save user failed")
-	}
-	return nil
-}
-
-// VerifyGoogleUser - verify user's google auth code, response google info of user
-func VerifyGoogleUser(c echo.Context, code, redirectURL string) (*model.User, error) {
-	cfg := server.GetServerCfg()
-	token, err := cfg.Service().GoogleOauth2.GetToken(c.Request().Context(), code, redirectURL)
+// verifyGoogleUser - verify user's google auth code, response google info of user
+func verifyGoogleUser(c echo.Context, code, redirectURL string) (*model.User, error) {
+	srv := server.Get()
+	token, err := srv.Service().GoogleOauth2.GetToken(c.Request().Context(), code, redirectURL)
 	if err != nil {
 		return nil, err
 	}
 
-	person, err := cfg.Service().GoogleOauth2.GetPerson(c.Request().Context(), token)
+	person, err := srv.Service().GoogleOauth2.GetPerson(c.Request().Context(), token)
 	if err != nil {
 		return nil, err
 	}
@@ -42,30 +28,50 @@ func VerifyGoogleUser(c echo.Context, code, redirectURL string) (*model.User, er
 	return model.GetUserFromPerson(person)
 }
 
-// FirstOrCreate - Get the first record that match user's email or create new user if it doesn't exist
-func FirstOrCreate(c echo.Context, u *model.User) error {
-	cfg := server.GetServerCfg()
-	res, err := cfg.Store().User.GetByEmail(db.Get(), u.Email)
+// Get - get user data by ID
+func Get(c echo.Context) error {
+	var (
+		id = util.GetUserIDFromCtx(c)
+		tx = util.GetTxFromCtx(c)
+	)
+	u, err := server.Get().Store().User.Get(tx, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return Save(c, u)
-		}
-		return util.JsonError(c, 404, "failed to get user with email: "+u.Email)
+		return util.JsonError(c, 404, "user not found")
 	}
-
-	err = copier.Copy(u, res)
-	if err != nil {
-		return errors.New("failed to copy value")
-	}
-	return nil
+	return c.JSON(200, u)
 }
 
-// Get - get user data from the database by the id
-func Get(c echo.Context, id string) (*model.User, error) {
-	cfg := server.GetServerCfg()
-	res, err := cfg.Store().User.Get(db.Get(), id)
+func SignIn(c echo.Context) error {
+	req := &request.SignInRequest{}
+	err := util.JsonParse(c, req)
 	if err != nil {
-		return nil, util.JsonError(c, 404, "user not found")
+		return err
 	}
-	return res, nil
+
+	u, err := verifyGoogleUser(c, req.Code, req.RedirectURI)
+	if err != nil {
+		return err
+	}
+
+	var (
+		tx  = util.GetTxFromCtx(c)
+		srv = server.Get()
+	)
+
+	err = srv.Store().User.Save(tx, u)
+	if err != nil {
+		return err
+	}
+
+	jwt, err := srv.Auth().GenerateJWTToken(&auth.TokenInfo{
+		User: *u,
+	}, time.Now().Add(24*time.Hour).Unix())
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(200, &response.SignInResponse{
+		User:        u,
+		AccessToken: jwt,
+	})
 }
