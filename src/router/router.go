@@ -1,4 +1,4 @@
-package handler
+package router
 
 import (
 	"log"
@@ -6,38 +6,29 @@ import (
 
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
-	"github.com/phuwn/crawlie/src/db"
+	"github.com/phuwn/crawlie/src/handler"
+	"github.com/phuwn/crawlie/src/handler/user"
+	"github.com/phuwn/crawlie/src/middleware"
 	"github.com/phuwn/crawlie/src/util"
 )
 
 // Router - handling routes for incoming request
-func Router(config *Config) *echo.Echo {
+func Router() *echo.Echo {
 	r := echo.New()
 	r.HTTPErrorHandler = errorHandler
-	r.GET("/healthz", healthz)
+	r.GET("/healthz", handler.Healthz)
 
 	v1 := r.Group("/v1")
-	NewAuthenticator(config.JwtSecretKey)
 	r.Pre(mw.RemoveTrailingSlash())
 	{
 		v1.Use(CorsConfig())
-		v1.Use(AddTransaction)
-		v1.POST("/auth", signIn)
-		v1.Use(WithAuth)
+		v1.Use(middleware.AddTransaction)
+		v1.POST("/auth", user.SignIn)
+		v1.Use(middleware.WithAuth)
 	}
-	{
-		userRoutes(v1)
-	}
+	v1.GET("/user/me", user.Get)
 
 	return r
-}
-
-func healthz(c echo.Context) error {
-	err := db.Healthz()
-	if err != nil {
-		return err
-	}
-	return c.JSONBlob(200, []byte(`{"message":"ok"}`))
 }
 
 // CorsConfig - CORS middleware
