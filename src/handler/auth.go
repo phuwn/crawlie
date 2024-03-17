@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -9,11 +10,14 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo"
 	"github.com/phuwn/crawlie/src/model"
+	"github.com/phuwn/crawlie/src/util"
 )
 
 const (
 	uidKey = "uid"
 )
+
+var auth *authenticator
 
 // TokenInfo - data model contains user's auth info
 type TokenInfo struct {
@@ -25,12 +29,12 @@ type authenticator struct {
 	jwtSecretKey string
 }
 
-func NewAuthenticator(secretKey string) *authenticator {
-	return &authenticator{jwtSecretKey: secretKey}
+func NewAuthenticator(secretKey string) {
+	auth = &authenticator{jwtSecretKey: secretKey}
 }
 
-// GenerateJWTToken - create an access_token that represents user's session
-func (auth authenticator) GenerateJWTToken(info *TokenInfo, expiresAt int64) (string, error) {
+// generateJWTToken - create an access_token that represents user's session
+func generateJWTToken(info *TokenInfo, expiresAt int64) (string, error) {
 	info.ExpiresAt = expiresAt
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, info)
 	encryptedToken, err := token.SignedString([]byte(auth.jwtSecretKey))
@@ -41,7 +45,7 @@ func (auth authenticator) GenerateJWTToken(info *TokenInfo, expiresAt int64) (st
 }
 
 // verifyAccessToken - validates user's access_token and returns user's id if it's verified
-func (auth authenticator) verifyAccessToken(tokenString string) (*TokenInfo, error) {
+func verifyAccessToken(tokenString string) (*TokenInfo, error) {
 	claims := TokenInfo{}
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(auth.jwtSecretKey), nil
@@ -63,25 +67,35 @@ func (auth authenticator) verifyAccessToken(tokenString string) (*TokenInfo, err
 }
 
 // WithAuth - authentication middleware
-func (auth authenticator) WithAuth(next echo.HandlerFunc) echo.HandlerFunc {
+func WithAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authStr := c.Request().Header.Get("Authorization")
 		if !strings.Contains(authStr, "Bearer ") {
-			return jsonError(c, 401, "invalid auth method")
+			return util.JsonError(c, 401, "invalid authentication method")
 		}
 
 		token := authStr[7:]
 		if token == "" {
-			return jsonError(c, 401, "missing access_token")
+			return util.JsonError(c, 401, "missing access_token")
 		}
 
-		tokenInfo, err := auth.verifyAccessToken(token)
+		tokenInfo, err := verifyAccessToken(token)
 		if err != nil {
-			return jsonError(c, 401, err.Error())
+			return util.JsonError(c, 401, err.Error())
 		}
 
-		c.Set(uidKey, tokenInfo.User.ID)
+		setUserIDToCtx(c, tokenInfo.User.ID)
 
 		return next(c)
 	}
+}
+
+// setUserIDToCtx - set a uid to echo context for later user's session usage
+func setUserIDToCtx(c echo.Context, uid string) {
+	c.Set(uidKey, uid)
+}
+
+// getUserIDFromCtx - get uid from echo context
+func getUserIDFromCtx(c echo.Context) string {
+	return fmt.Sprintf("%v", c.Get(uidKey))
 }

@@ -1,0 +1,13 @@
+{
+	"database": {
+		"dsn": "postgres://admin:password@localhost:5432/crawlie?sslmode=disable"
+	},
+	"server": {
+		"listening_port": 8080,
+		"jwt_secret_key": "secretjwt"
+	},
+	"service": {
+		"google_oauth2_client_id": "",
+		"google_oauth2_client_secret": ""
+	}
+}
