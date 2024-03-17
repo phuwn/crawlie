@@ -27,7 +27,7 @@ func getMyInfo(c echo.Context) error {
 // SignInRequest - data form to sign in to auth
 type SignInRequest struct {
 	Code        string `json:"code"`
-	RedirectURL string `json:"redirect_url"`
+	RedirectURI string `json:"redirect_uri"`
 }
 
 func signIn(c echo.Context) error {
@@ -42,7 +42,7 @@ func signIn(c echo.Context) error {
 		return util.JsonError(c, 400, "wrong sign-in form data")
 	}
 
-	u, err := user.VerifyGoogleUser(c, req.Code, req.RedirectURL)
+	u, err := user.VerifyGoogleUser(c, req.Code, req.RedirectURI)
 	if err != nil {
 		return err
 	}

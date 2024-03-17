@@ -8,12 +8,12 @@ import (
 
 // User data model
 type User struct {
-	ID     string `json:"id"`
+	ID     string `json:"id" gorm:"default:null"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
 
-	AccessToken *string `json:"access_token,omitempty" sql:"-"`
+	AccessToken *string `json:"access_token,omitempty" sql:"-" gorm:"-"`
 }
 
 func GetUserFromPerson(person *people.Person) (*User, error) {
