@@ -17,12 +17,12 @@ func Router(config *Config) *echo.Echo {
 	r.GET("/healthz", healthz)
 
 	v1 := r.Group("/v1")
-	v1.POST("/auth", signIn)
 	NewAuthenticator(config.JwtSecretKey)
 	r.Pre(mw.RemoveTrailingSlash())
 	{
 		v1.Use(CorsConfig())
 		v1.Use(AddTransaction)
+		v1.POST("/auth", signIn)
 		v1.Use(WithAuth)
 	}
 	{
