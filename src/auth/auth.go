@@ -22,17 +22,28 @@ type TokenInfo struct {
 	model.User
 }
 
-func NewAuthenticator(cfg config.Authenticator) *Authenticator {
-	return &Authenticator{cfg.JwtSecretKey}
+func NewAuthenticator(cfg config.Authenticator) (*Authenticator, error) {
+	var (
+		duration = 24 * time.Hour
+		err      error
+	)
+	if cfg.TokenDuration != "" {
+		duration, err = time.ParseDuration(cfg.TokenDuration)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &Authenticator{jwtSecretKey: cfg.JwtSecretKey, tokenDuration: duration}, nil
 }
 
 type Authenticator struct {
-	jwtSecretKey string
+	jwtSecretKey  string
+	tokenDuration time.Duration
 }
 
 // GenerateJWTToken - create an access_token that represents user's session
-func (auth *Authenticator) GenerateJWTToken(info *TokenInfo, expiresAt int64) (string, error) {
-	info.ExpiresAt = expiresAt
+func (auth *Authenticator) GenerateJWTToken(info *TokenInfo) (string, error) {
+	info.ExpiresAt = time.Now().Add(auth.tokenDuration).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, info)
 	encryptedToken, err := token.SignedString([]byte(auth.jwtSecretKey))
 	if err != nil {

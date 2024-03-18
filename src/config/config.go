@@ -14,7 +14,8 @@ type Router struct {
 }
 
 type Authenticator struct {
-	JwtSecretKey string `json:"jwt_secret_key,omitempty"`
+	JwtSecretKey  string `json:"jwt_secret_key,omitempty"`
+	TokenDuration string `json:"token_duration"`
 }
 
 type Database struct {
@@ -23,8 +24,8 @@ type Database struct {
 }
 
 type Service struct {
-	GoogleOauth2ClientID     string `json:"google_oauth_2_client_id,omitempty"`
-	GoogleOauth2ClientSecret string `json:"google_oauth_2_client_secret,omitempty"`
+	GoogleOauth2ClientID     string `json:"google_oauth2_client_id,omitempty"`
+	GoogleOauth2ClientSecret string `json:"google_oauth2_client_secret,omitempty"`
 }
 
 type Config struct {

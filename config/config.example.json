@@ -1,10 +1,14 @@
 {
 	"database": {
+		"type": "postgres",
 		"dsn": "postgres://admin:password@localhost:5432/crawlie?sslmode=disable"
 	},
-	"server": {
-		"listening_port": 8080,
-		"jwt_secret_key": "secretjwt"
+	"router": {
+		"listening_port": 8089
+	},
+	"authenticator": {
+		"jwt_secret_key": "secret",
+		"token_duration": "24h"
 	},
 	"service": {
 		"google_oauth2_client_id": "",

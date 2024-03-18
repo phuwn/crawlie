@@ -4,7 +4,6 @@ go 1.21.4
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/jinzhu/copier v0.4.0
 	github.com/labstack/echo v3.3.10+incompatible
 	golang.org/x/oauth2 v0.18.0
 	google.golang.org/api v0.170.0

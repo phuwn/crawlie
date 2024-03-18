@@ -1,8 +1,6 @@
 package user
 
 import (
-	"time"
-
 	"github.com/labstack/echo"
 	"github.com/phuwn/crawlie/src/auth"
 	"github.com/phuwn/crawlie/src/model"
@@ -65,7 +63,7 @@ func SignIn(c echo.Context) error {
 
 	jwt, err := srv.Auth().GenerateJWTToken(&auth.TokenInfo{
 		User: *u,
-	}, time.Now().Add(24*time.Hour).Unix())
+	})
 	if err != nil {
 		return err
 	}
