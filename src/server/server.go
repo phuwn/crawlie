@@ -33,8 +33,13 @@ func Init(cfg *config.Config) error {
 		return err
 	}
 
+	auth, err := auth.NewAuthenticator(cfg.Authenticator)
+	if err != nil {
+		return err
+	}
+
 	srv = &Server{
-		auth:     auth.NewAuthenticator(cfg.Authenticator),
+		auth:     auth,
 		database: db,
 		store:    store.New(),
 		service:  service.New(cfg.Service),
