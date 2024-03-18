@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 	"github.com/phuwn/crawlie/src/handler"
+	"github.com/phuwn/crawlie/src/handler/keyword"
 	"github.com/phuwn/crawlie/src/handler/user"
 	"github.com/phuwn/crawlie/src/middleware"
 	"github.com/phuwn/crawlie/src/util"
@@ -26,7 +27,11 @@ func Router() *echo.Echo {
 		v1.POST("/auth", user.SignIn)
 		v1.Use(middleware.WithAuth)
 	}
-	v1.GET("/user/me", user.Get)
+	v1.GET("/users/me", user.Get)
+
+	v1.GET("/keywords", keyword.ListByUser)
+	v1.GET("/keywords/:name", keyword.Get)
+	v1.POST("/keywords", keyword.UploadFile)
 
 	return r
 }
