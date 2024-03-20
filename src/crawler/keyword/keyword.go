@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -56,10 +55,6 @@ func (k KeywordCrawlItem) Work(client *http.Client, userAgent string) error {
 		return err
 	}
 
-	if keyword.SearchResultsCount == "" {
-		log.Println(userAgent)
-	}
-
 	return srv.Store().Keyword.Save(srv.DB().DB(), keyword)
 }
 
@@ -84,7 +79,6 @@ func (k KeywordCrawlItem) fetchSearchPage(client *http.Client, userAgent string)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Println(userAgent)
 		return nil, fmt.Errorf("request failed with status code %d", resp.StatusCode)
 	}
 

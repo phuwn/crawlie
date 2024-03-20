@@ -2,3 +2,7 @@ local:
   dialect: postgres
   datasource: user=admin password=password host=127.0.0.1 port=15432 dbname=crawlie sslmode=disable
   dir: data/migration
+dev:
+  dialect: postgres
+  datasource: user=admin password=password host=crawlie_db port=5432 dbname=crawlie sslmode=disable
+  dir: /migration
