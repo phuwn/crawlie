@@ -58,16 +58,17 @@ func (auth *Authenticator) VerifyAccessToken(tokenString string) (*TokenInfo, er
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(auth.jwtSecretKey), nil
 	})
-
-	if !token.Valid {
-		return nil, ErrTokenExpired
-	}
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
 			return nil, ErrInvalidSignature
 		}
 		return nil, ErrBadToken
 	}
+
+	if !token.Valid {
+		return nil, ErrTokenExpired
+	}
+
 	if time.Unix(claims.ExpiresAt, 0).Before(time.Now()) {
 		return nil, ErrTokenExpired
 	}
