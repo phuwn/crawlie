@@ -4,7 +4,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/phuwn/crawlie/src/auth"
 	"github.com/phuwn/crawlie/src/model"
-	"github.com/phuwn/crawlie/src/request"
 	"github.com/phuwn/crawlie/src/response"
 	"github.com/phuwn/crawlie/src/server"
 	"github.com/phuwn/crawlie/src/util"
@@ -39,8 +38,13 @@ func Get(c echo.Context) error {
 	return c.JSON(200, u)
 }
 
+type SignInRequest struct {
+	Code        string `json:"code"`
+	RedirectURI string `json:"redirect_uri"`
+}
+
 func SignIn(c echo.Context) error {
-	req := &request.SignInRequest{}
+	req := &SignInRequest{}
 	err := util.JsonParse(c, req)
 	if err != nil {
 		return err
