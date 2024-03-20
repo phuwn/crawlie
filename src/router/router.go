@@ -17,12 +17,12 @@ import (
 func Router() *echo.Echo {
 	r := echo.New()
 	r.HTTPErrorHandler = errorHandler
+	r.Use(cors)
 	r.GET("/healthz", handler.Healthz)
 
 	v1 := r.Group("/v1")
 	r.Pre(mw.RemoveTrailingSlash())
 	{
-		v1.Use(CorsConfig())
 		v1.Use(middleware.AddTransaction)
 		v1.POST("/auth", user.SignIn)
 		v1.Use(middleware.WithAuth)
@@ -37,14 +37,12 @@ func Router() *echo.Echo {
 }
 
 // CorsConfig - CORS middleware
-func CorsConfig() echo.MiddlewareFunc {
-	return mw.CORSWithConfig(mw.CORSConfig{
-		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
-	})
-}
+var cors = mw.CORSWithConfig(mw.CORSConfig{
+	AllowOrigins:     []string{"*"},
+	AllowHeaders:     []string{"Origin", "Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	AllowCredentials: true,
+})
 
 func errorHandler(err error, c echo.Context) {
 	if he, ok := err.(*echo.HTTPError); ok {
