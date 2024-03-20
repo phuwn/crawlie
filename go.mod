@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/labstack/echo v3.3.10+incompatible
+	golang.org/x/net v0.22.0
 	golang.org/x/oauth2 v0.18.0
 	google.golang.org/api v0.170.0
 	gorm.io/driver/postgres v1.5.7
@@ -40,7 +41,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect

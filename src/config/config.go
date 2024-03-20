@@ -28,11 +28,17 @@ type Service struct {
 	GoogleOauth2ClientSecret string `json:"google_oauth2_client_secret,omitempty"`
 }
 
+type Crawler struct {
+	UserAgents []string `json:"user_agents,omitempty"`
+	Interval   string   `json:"interval,omitempty"`
+}
+
 type Config struct {
 	Router        `json:"router,omitempty"`
 	Authenticator `json:"authenticator,omitempty"`
 	Database      `json:"database,omitempty"`
 	Service       `json:"service,omitempty"`
+	Crawler       `json:"crawler,omitempty"`
 }
 
 func Load() (*Config, error) {

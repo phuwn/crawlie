@@ -3,10 +3,12 @@ package keyword
 import (
 	"io"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/phuwn/crawlie/src/model"
+	"github.com/phuwn/crawlie/src/response"
 	"github.com/phuwn/crawlie/src/server"
 	"github.com/phuwn/crawlie/src/util"
 )
@@ -14,15 +16,43 @@ import (
 // ListByUser - List user's keyword
 func ListByUser(c echo.Context) error {
 	var (
-		uid = util.GetUserIDFromCtx(c)
-		tx  = util.GetTxFromCtx(c)
+		uid    = util.GetUserIDFromCtx(c)
+		tx     = util.GetTxFromCtx(c)
+		limit  = 50
+		offset = 0
+		err    error
+		search *string
 	)
 
-	u, err := server.Get().Store().Keyword.ListByUser(tx, uid)
+	if limitStr := c.QueryParam("limit"); limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			return util.JsonError(c, 400, "limit should be number")
+		}
+	}
+
+	if offsetStr := c.QueryParam("offset"); offsetStr != "" {
+		offset, err = strconv.Atoi(offsetStr)
+		if err != nil {
+			return util.JsonError(c, 400, "offset should be number")
+		}
+	}
+
+	if searchStr := c.QueryParam("q"); searchStr != "" {
+		search = &searchStr
+	}
+
+	keywords, count, err := server.Get().Store().Keyword.ListByUser(
+		tx,
+		uid,
+		limit,
+		offset,
+		search,
+	)
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, u)
+	return c.JSON(200, &response.ListKeywordsResponse{Data: keywords, Count: count})
 }
 
 // Get - Get keyword detail by name
@@ -72,14 +102,19 @@ func UploadFile(c echo.Context) error {
 	}
 
 	var (
-		keywords     = make([]*model.Keyword, len(lines))
-		userKeywords = make([]*model.UserKeyword, len(lines))
+		keywords     = make([]*model.Keyword, 0)
+		userKeywords = make([]*model.UserKeyword, 0)
+		keywordMap   = make(map[string]bool)
 	)
 
-	for i, line := range lines {
+	for _, line := range lines {
 		keywordName := strings.TrimSpace(line)
-		keywords[i] = &model.Keyword{Name: keywordName, Status: model.KeywordNeedCrawl}
-		userKeywords[i] = &model.UserKeyword{UserID: uid, Keyword: keywordName, FileName: file.Filename}
+		if keywordMap[keywordName] {
+			continue
+		}
+		keywords = append(keywords, &model.Keyword{Name: keywordName, Status: model.KeywordNeedCrawl})
+		userKeywords = append(userKeywords, &model.UserKeyword{UserID: uid, Keyword: keywordName, FileName: file.Filename})
+		keywordMap[keywordName] = true
 	}
 
 	srv := server.Get()

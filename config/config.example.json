@@ -13,5 +13,9 @@
 	"service": {
 		"google_oauth2_client_id": "",
 		"google_oauth2_client_secret": ""
+	},
+	"crawler": {
+		"user_agents": [],
+		"interval": "5s"
 	}
 }
