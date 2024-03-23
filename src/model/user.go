@@ -8,7 +8,7 @@ import (
 
 // User data model
 type User struct {
-	ID     string `json:"id" gorm:"default:null"`
+	ID     string `json:"id" gorm:"primaryKey;default:null"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
