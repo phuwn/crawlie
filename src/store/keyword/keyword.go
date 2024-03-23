@@ -11,5 +11,5 @@ type Store interface {
 	ListByUser(tx *gorm.DB, userID string, limit, offset int, search *string) ([]*model.Keyword, int64, error)
 	ListUncrawled(tx *gorm.DB, limit, offset int) ([]*model.Keyword, error)
 	BulkInsert(tx *gorm.DB, keywords []*model.Keyword) error
-	Save(tx *gorm.DB, keyword *model.Keyword) error
+	Update(tx *gorm.DB, keyword *model.Keyword) error
 }

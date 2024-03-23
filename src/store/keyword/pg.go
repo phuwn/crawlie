@@ -5,7 +5,6 @@ import (
 
 	"github.com/phuwn/crawlie/src/model"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type keywordPGStore struct{}
@@ -27,7 +26,7 @@ func (s keywordPGStore) ListByUser(tx *gorm.DB, userID string, limit, offset int
 	var count int64
 
 	tx1 := tx.Table("keywords").
-		Joins("left join user_keywords on user_keywords.keyword = keywords.name").
+		Joins("left join user_keywords on user_keywords.keyword_id = keywords.id").
 		Where("user_keywords.user_id = ?", userID)
 
 	if search != nil {
@@ -39,7 +38,7 @@ func (s keywordPGStore) ListByUser(tx *gorm.DB, userID string, limit, offset int
 	}
 
 	tx2 := tx.Select("keywords.name", "ad_words_count", "links_count", "search_results_count", "status", "html_cache", "last_crawled_at").
-		Joins("left join user_keywords on user_keywords.keyword = keywords.name").
+		Joins("left join user_keywords on user_keywords.keyword_id = keywords.id").
 		Where("user_keywords.user_id = ?", userID)
 
 	if search != nil {
@@ -57,15 +56,9 @@ func (s keywordPGStore) ListUncrawled(tx *gorm.DB, limit, offset int) ([]*model.
 }
 
 func (s keywordPGStore) BulkInsert(tx *gorm.DB, keywords []*model.Keyword) error {
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "name"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{"status": model.KeywordNeedCrawl}),
-	}).Create(keywords).Error
+	return tx.Create(keywords).Error
 }
 
-func (s keywordPGStore) Save(tx *gorm.DB, keyword *model.Keyword) error {
-	return tx.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "name"}},
-		UpdateAll: true,
-	}).Create(keyword).Error
+func (s keywordPGStore) Update(tx *gorm.DB, keyword *model.Keyword) error {
+	return tx.Omit("UserKeyword").Save(keyword).Error
 }

@@ -55,7 +55,7 @@ func (k KeywordCrawlItem) Work(client *http.Client, userAgent string) error {
 		return err
 	}
 
-	return srv.Store().Keyword.Save(srv.DB().DB(), keyword)
+	return srv.Store().Keyword.Update(srv.DB().DB(), keyword)
 }
 
 func (k KeywordCrawlItem) fetchSearchPage(client *http.Client, userAgent string) ([]byte, error) {

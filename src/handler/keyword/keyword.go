@@ -102,9 +102,8 @@ func UploadFile(c echo.Context) error {
 	}
 
 	var (
-		keywords     = make([]*model.Keyword, 0)
-		userKeywords = make([]*model.UserKeyword, 0)
-		keywordMap   = make(map[string]bool)
+		keywords   = make([]*model.Keyword, 0)
+		keywordMap = make(map[string]bool)
 	)
 
 	for _, line := range lines {
@@ -112,18 +111,19 @@ func UploadFile(c echo.Context) error {
 		if keywordMap[keywordName] {
 			continue
 		}
-		keywords = append(keywords, &model.Keyword{Name: keywordName, Status: model.KeywordNeedCrawl})
-		userKeywords = append(userKeywords, &model.UserKeyword{UserID: uid, Keyword: keywordName, FileName: file.Filename})
+		keywords = append(keywords, &model.Keyword{
+			Name:   keywordName,
+			Status: model.KeywordNeedCrawl,
+			UserKeyword: &model.UserKeyword{
+				UserID:   uid,
+				FileName: file.Filename,
+			},
+		})
 		keywordMap[keywordName] = true
 	}
 
 	srv := server.Get()
 	err = srv.Store().Keyword.BulkInsert(tx, keywords)
-	if err != nil {
-		return err
-	}
-
-	err = srv.Store().UserKeyword.BulkInsert(tx, userKeywords)
 	if err != nil {
 		return err
 	}
