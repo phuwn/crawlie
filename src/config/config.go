@@ -24,13 +24,14 @@ type Database struct {
 }
 
 type Service struct {
-	GoogleOauth2ClientID     string `json:"google_oauth2_client_id,omitempty"`
-	GoogleOauth2ClientSecret string `json:"google_oauth2_client_secret,omitempty"`
+	GoogleOauth2ClientID     string   `json:"google_oauth2_client_id,omitempty"`
+	GoogleOauth2ClientSecret string   `json:"google_oauth2_client_secret,omitempty"`
+	UserAgents               []string `json:"user_agents,omitempty"`
 }
 
 type Crawler struct {
-	UserAgents []string `json:"user_agents,omitempty"`
-	Interval   string   `json:"interval,omitempty"`
+	NumberOfWorkers int    `json:"number_of_workers,omitempty"`
+	Interval        string `json:"interval,omitempty"`
 }
 
 type Config struct {
