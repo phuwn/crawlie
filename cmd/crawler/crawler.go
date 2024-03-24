@@ -21,12 +21,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	workerPool, err := workerpool.New(cfg.Crawler.UserAgents, cfg.Crawler.Interval)
+	workerPool, err := workerpool.New(cfg.Crawler.NumberOfWorkers)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	workloads, err := keyword.LoadUncrawledKeyword()
+	workloads, err := keyword.LoadUncrawledKeyword(cfg.Crawler.Interval)
 	if err != nil {
 		log.Fatal(err)
 	}

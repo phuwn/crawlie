@@ -12,10 +12,11 @@
 	},
 	"service": {
 		"google_oauth2_client_id": "",
-		"google_oauth2_client_secret": ""
+		"google_oauth2_client_secret": "",
+		"user_agents": []
 	},
 	"crawler": {
-		"user_agents": [],
+		"number_of_workers": 3,
 		"interval": "5s"
 	}
 }
