@@ -35,7 +35,7 @@ func Get(c echo.Context) error {
 	if err != nil {
 		return util.JsonError(c, 404, "user not found")
 	}
-	return c.JSON(200, u)
+	return util.JsonMarshal(c, 200, u)
 }
 
 type SignInRequest struct {
@@ -72,7 +72,7 @@ func SignIn(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(200, &response.SignInResponse{
+	return util.JsonMarshal(c, 200, &response.SignInResponse{
 		User:        u,
 		AccessToken: jwt,
 	})

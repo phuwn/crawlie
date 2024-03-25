@@ -47,6 +47,20 @@ func Init(cfg *config.Config) error {
 	return nil
 }
 
+func SetupTest(
+	auth *auth.Authenticator,
+	database database.Database,
+	store *store.Store,
+	service *service.Service,
+) {
+	srv = &Server{
+		auth:     auth,
+		database: database,
+		store:    store,
+		service:  service,
+	}
+}
+
 // GetServer - get server configuration settings
 func Get() *Server {
 	return srv

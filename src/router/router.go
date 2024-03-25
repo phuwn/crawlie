@@ -53,7 +53,7 @@ func errorHandler(err error, c echo.Context) {
 			util.JsonError(c, code, "Internal Server Error")
 			return
 		}
-		c.JSON(code, msg)
+		util.JsonMarshal(c, code, msg)
 		return
 	}
 	log.Println(err.Error())
