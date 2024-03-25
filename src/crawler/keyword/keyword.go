@@ -29,6 +29,9 @@ func LoadUncrawledKeyword() (chan workerpool.WorkLoad, error) {
 
 	workloads := make(chan workerpool.WorkLoad, len(keywords))
 	for _, keyword := range keywords {
+		if keyword.Name == "" {
+			continue
+		}
 		workloads <- &KeywordCrawlItem{Keyword: *keyword}
 	}
 	close(workloads)

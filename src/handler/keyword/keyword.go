@@ -109,6 +109,9 @@ func UploadFile(c echo.Context) error {
 
 	for _, line := range lines {
 		keywordName := strings.TrimSpace(line)
+		if keywordName == "" {
+			continue
+		}
 		if keywordMap[keywordName] {
 			continue
 		}
