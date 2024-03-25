@@ -52,7 +52,7 @@ func ListByUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(200, &response.ListKeywordsResponse{Data: keywords, Count: count})
+	return util.JsonMarshal(c, 200, &response.ListKeywordsResponse{Data: keywords, Count: count})
 }
 
 // Get - Get keyword detail by name
@@ -66,7 +66,7 @@ func Get(c echo.Context) error {
 	if err != nil {
 		return util.JsonError(c, 404, "keyword not found")
 	}
-	return c.JSON(200, u)
+	return util.JsonMarshal(c, 200, u)
 }
 
 // UploadFile - Upload csv file contains list of keywords
